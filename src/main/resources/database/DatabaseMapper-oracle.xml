@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>   
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="database">
+
+	<!-- 查询数据库中的表 -->
+	<select id="findTables" parameterType="map" resultType="com.wywl.code.metadata.Table">
+		<![CDATA[
+		SELECT ts.TABLESPACE_NAME "catalog",
+		       ts.OWNER           "schema",
+		       ts.TABLE_NAME      "name",
+		       tc.COMMENTS        "comment"
+		  FROM all_tables ts
+		  LEFT JOIN all_tab_comments tc
+		    ON ts.owner = tc.owner
+		   AND ts.table_name = tc.table_name
+		 WHERE ts.owner = #{schema}
+		]]>
+		<if test="name != null">
+			AND ts.table_name like #{name}
+		</if>
+	</select>
+
+	<!-- 查询数据库中的表 -->
+	<select id="findColumns" parameterType="map" resultType="com.wywl.code.metadata.Column">
+		<![CDATA[
+		SELECT tc.column_name    "name",
+		       tc.column_id      ordinal,
+		       tc.data_type      dataType,
+		       tc.data_default   dataDef,
+		       tc.nullable       nullable,
+		       tc.data_length    length,
+		       tc.data_precision percision,
+		       tc.data_scale     scale,
+		       cc.comments       "comment"
+		  FROM all_tab_columns tc
+		  LEFT JOIN all_col_comments cc
+		    ON tc.owner = cc.owner
+		   AND tc.table_name = cc.table_name
+		   AND tc.column_name = cc.column_name
+		 WHERE tc.owner = #{schema}
+		   AND tc.table_name = #{name}
+		 ORDER BY tc.column_id
+		]]>
+	</select>
+
+</mapper>   

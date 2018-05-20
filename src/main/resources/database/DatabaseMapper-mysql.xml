@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>   
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="database">
+
+	<!-- 查询数据库中的表 -->
+	<select id="findTables" parameterType="map" resultType="com.maple.metadata.Table">
+		<![CDATA[
+		SELECT upper(ts.TABLE_CATALOG) catalog,
+		       upper(ts.TABLE_SCHEMA)  "schema",
+		       upper(ts.TABLE_NAME)    "name",
+		       ts.TABLE_COMMENT        "comment"
+		  FROM information_schema.TABLES ts
+		 WHERE ts.TABLE_SCHEMA = #{schema}
+		]]>
+		<if test="name != null">
+			AND ts.TABLE_NAME like #{name}
+		</if>
+	</select>
+
+	<!-- 查询数据库中的表 -->
+	<select id="findColumns" parameterType="map" resultType="com.maple.metadata.Column">
+		<![CDATA[
+		SELECT upper(cs.COLUMN_NAME)       "name",
+		       cs.ORDINAL_POSITION         ordinal,
+		       upper(cs.COLUMN_TYPE)       type,
+		       upper(cs.DATA_TYPE)         dataType,
+		       cs.COLUMN_DEFAULT           defValue,
+		       cs.IS_NULLABLE              nullable,
+		       cs.CHARACTER_MAXIMUM_LENGTH length,
+		       cs.NUMERIC_PRECISION        percision,
+		       cs.NUMERIC_SCALE            scale,
+		       upper(cs.COLUMN_KEY)        "key",
+		       cs.EXTRA                    extra,
+		       cs.COLUMN_COMMENT           "comment"
+		  FROM information_schema.COLUMNS cs
+		 WHERE cs.TABLE_SCHEMA = #{schema}
+		   AND cs.TABLE_NAME = #{name}
+		 ORDER BY cs.ORDINAL_POSITION
+		]]>
+	</select>
+
+</mapper>   
